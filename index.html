@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#10090d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="After Hours">
+<link rel="manifest" href="manifest.webmanifest">
+<title>After Hours</title>
+<style>
+:root{--bg:#10090d;--panel:#1a1017;--panel2:#24151e;--wine:#541d35;--rose:#c58b8c;--gold:#c9a36a;--text:#f5e9e9;--muted:#b99fa9;--line:#563344}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#2a1420 0%,var(--bg) 58%);color:var(--text);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100dvh}
+button,input,textarea,select{font:inherit}button{cursor:pointer}
+.app{max-width:760px;margin:auto;min-height:100dvh;padding:env(safe-area-inset-top) 14px calc(18px + env(safe-area-inset-bottom))}
+header{display:flex;align-items:center;justify-content:space-between;padding:18px 4px 14px;border-bottom:1px solid #4a2938}
+.brand{font-family:Georgia,serif;letter-spacing:.18em;color:var(--gold);font-size:19px}.sub{font-size:10px;letter-spacing:.22em;color:var(--rose);margin-top:3px}
+.pill{border:1px solid var(--line);border-radius:99px;padding:6px 10px;color:var(--muted);font-size:11px}
+main{padding:16px 0}.hero{padding:20px 18px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(135deg,#28131f,#160d13);margin-bottom:16px}
+h1{font:normal 29px Georgia,serif;margin:0 0 7px;color:#f1d9d7}.hero p{color:var(--muted);margin:0;font-size:13px}
+.tabs{display:flex;gap:7px;margin:14px 0;overflow:auto}.tab{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:99px;padding:9px 13px;white-space:nowrap}.tab.active{background:var(--wine);color:white;border-color:var(--rose)}
+.card{background:rgba(28,16,24,.94);border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0}
+.row{display:flex;gap:10px;align-items:center}.grow{flex:1;min-width:0}.avatar{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#6a2a45,#24121d);border:1px solid var(--gold);font:20px Georgia;color:#f3d8d0}
+h2{font:normal 21px Georgia;margin:0 0 5px}h3{font-size:14px;margin:0 0 7px;color:var(--gold)}.muted{color:var(--muted);font-size:13px}
+.btn{border:1px solid var(--gold);background:linear-gradient(135deg,#64253f,#351726);color:#fff4f1;border-radius:12px;padding:11px 14px}.btn.secondary{background:#21131c;border-color:var(--line);color:var(--rose)}.btn.small{padding:7px 10px;font-size:12px}
+input,textarea,select{width:100%;background:#100a0f;border:1px solid var(--line);color:var(--text);border-radius:10px;padding:11px;outline:none}textarea{min-height:76px;resize:vertical}label{display:block;color:var(--rose);font-size:12px;margin:10px 0 5px}
+.chatbox{height:min(53dvh,520px);overflow:auto;padding:10px;background:#120b10;border:1px solid var(--line);border-radius:14px;margin:10px 0}
+.bubble{max-width:88%;padding:11px 13px;border-radius:14px;margin:8px 0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px}.mine{margin-left:auto;background:#4a1d34;border:1px solid #8c526c}.theirs{background:#241721;border:1px solid #533347}.time{font-size:10px;color:#c4a6b2;margin-top:5px}
+.compose{display:flex;gap:8px;align-items:end}.compose textarea{min-height:46px;max-height:120px}.compose button{min-width:76px}
+.notice{font-size:12px;color:var(--muted);background:#1b1118;border-left:2px solid var(--gold);padding:10px 12px;border-radius:7px;margin:10px 0}
+.hidden{display:none!important}.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+footer{text-align:center;color:#8f7480;font-size:10px;padding:18px 0}
+@media(max-width:430px){.grid{grid-template-columns:1fr}.app{padding-left:11px;padding-right:11px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div><div class="brand">AFTER HOURS</div><div class="sub">YOUR PRIVATE LITTLE UNIVERSE</div></div><span class="pill" id="engineStatus">AI not loaded</span></header>
+<main>
+<section class="hero"><h1>Stay a little longer.</h1><p>Private conversations. Your characters. Your story.</p></section>
+<nav class="tabs">
+<button class="tab active" data-tab="chats">Chats</button><button class="tab" data-tab="characters">Characters</button><button class="tab" data-tab="engine">AI setup</button><button class="tab" data-tab="settings">Settings</button>
+</nav>
+<section id="chats">
+<div id="chatList"></div>
+<div id="conversation" class="hidden">
+<div class="row"><button class="btn secondary small" id="backBtn">← Back</button><div class="grow"><h2 id="chatTitle">Chat</h2><div class="muted" id="chatSubtitle"></div></div><button class="btn secondary small" id="clearBtn">Clear</button></div>
+<div class="chatbox" id="messages" aria-live="polite"></div>
+<div class="compose"><textarea id="messageInput" placeholder="Say something..."></textarea><button class="btn" id="sendBtn">Send</button></div>
+</div>
+</section>
+<section id="characters" class="hidden">
+<div class="row" style="justify-content:space-between"><h2>Your characters</h2><button class="btn small" id="newCharBtn">＋ Create</button></div>
+<div id="characterList"></div>
+</section>
+<section id="engine" class="hidden">
+<div class="card">
+<h2>Local AI engine</h2>
+<p class="muted">The model runs in Safari on this iPad. Its first download requires Wi-Fi and may take several minutes. Keep this page open while it loads.</p>
+<div class="notice">This is an experimental browser-based setup. WebGPU support, available memory and model performance vary by iPadOS version. If your browser cannot run the model, the app will tell you rather than silently sending chats to a server.</div>
+<button class="btn" id="loadModelBtn">Download & start local AI</button>
+<p class="muted" id="loadProgress">No model downloaded yet.</p>
+</div>
+<div class="card"><h3>Privacy</h3><p class="muted">Messages and character profiles are stored in this browser on this device. The model files are downloaded from a public model CDN. Clearing Safari website data may erase your chats.</p></div>
+</section>
+<section id="settings" class="hidden">
+<div class="card"><h2>Preferences</h2>
+<label>Display name</label><input id="userName" placeholder="What should your character call you?">
+<label>Relationship pace</label><select id="pace"><option>Slow burn</option><option>Balanced</option><option>Already close</option></select>
+<label>Chat memory note</label><textarea id="memoryNote" placeholder="Things you want your characters to remember about you..."></textarea>
+<button class="btn" id="saveSettings">Save preferences</button>
+</div>
+<div class="card"><h3>Your data</h3><p class="muted">Export a backup of your characters and chats, or delete all local data from this browser.</p><div class="row"><button class="btn secondary" id="exportBtn">Export backup</button><button class="btn secondary" id="deleteBtn">Delete data</button></div></div>
+</section>
+</main>
+<footer>AFTER HOURS · LOCAL-FIRST · MADE FOR YOUR IPAD</footer>
+</div>
+<div id="modal" class="hidden" style="position:fixed;inset:0;background:#080508dd;display:grid;place-items:center;padding:18px">
+<div class="card" style="width:min(100%,520px);max-height:90dvh;overflow:auto">
+<div class="row"><h2 class="grow">Create a character</h2><button class="btn secondary small" id="closeModal">✕</button></div>
+<label>Name</label><input id="cName" placeholder="e.g. Alexander">
+<label>Personality</label><textarea id="cPersonality" placeholder="Confident, protective, witty, quietly affectionate..."></textarea>
+<label>Backstory / relationship</label><textarea id="cBackstory" placeholder="How you met, what he knows about you, the atmosphere..."></textarea>
+<label>Style</label><select id="cStyle"><option>Romantic and attentive</option><option>Dark romance and brooding</option><option>Playful and teasing</option><option>Gentle and reassuring</option></select>
+<button class="btn" id="saveChar" style="width:100%;margin-top:14px">Save character</button>
+</div></div>
+<script type="module">
+const $=id=>document.getElementById(id);
+const KEY='afterhours-v1';
+let state=JSON.parse(localStorage.getItem(KEY)||'null')||{chars:[{id:'alex',name:'Alexander',personality:'Confident, observant, protective without being controlling, dry humour, secretly affectionate.',backstory:'You have been seeing each other for a little while. He remembers details you share and makes the conversation feel personal.',style:'Romantic and attentive'}],chats:{},settings:{name:'',pace:'Slow burn',memory:''},active:null};
+let engine=null, engineReady=false, loading=false;
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function chatFor(id){return state.chats[id]||(state.chats[id]=[])}
+function renderChars(){ $('characterList').innerHTML=state.chars.map(c=>`<div class="card row"><div class="avatar">${esc(c.name[0]||'♥')}</div><div class="grow"><h2>${esc(c.name)}</h2><div class="muted">${esc(c.style)} · ${chatFor(c.id).length} messages</div></div><button class="btn small" data-open="${esc(c.id)}">Chat</button></div>`).join('')}
+function renderChats(){if(state.active){$('chatList').classList.add('hidden');$('conversation').classList.remove('hidden');renderMessages();return}
+$('chatList').classList.remove('hidden');$('conversation').classList.add('hidden');$('chatList').innerHTML=state.chars.map(c=>`<div class="card row"><div class="avatar">${esc(c.name[0]||'♥')}</div><div class="grow"><h2>${esc(c.name)}</h2><div class="muted">${chatFor(c.id).length?esc(chatFor(c.id).at(-1).text.slice(0,54)):'Your story is waiting...'}</div></div><button class="btn small" data-open="${esc(c.id)}">Open</button></div>`).join('')}
+function renderMessages(){const c=state.chars.find(x=>x.id===state.active);if(!c){state.active=null;renderChats();return}
+$('chatTitle').textContent=c.name;$('chatSubtitle').textContent=c.style;$('messages').innerHTML=chatFor(c.id).map(m=>`<div class="bubble ${m.role==='user'?'mine':'theirs'}">${esc(m.text)}<div class="time">${m.role==='user'?'YOU':esc(c.name.toUpperCase())}</div></div>`).join('');$('messages').scrollTop=$('messages').scrollHeight}
+function openChat(id){state.active=id;save();renderChats()}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-open]');if(b)openChat(b.dataset.open)});
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));['chats','characters','engine','settings'].forEach(x=>$(x).classList.toggle('hidden',x!==b.dataset.tab));if(b.dataset.tab==='characters')renderChars();if(b.dataset.tab==='chats')renderChats()});
+$('backBtn').onclick=()=>{state.active=null;save();renderChats()};$('clearBtn').onclick=()=>{if(confirm('Clear this conversation?')){state.chats[state.active]=[];save();renderMessages()}};
+$('newCharBtn').onclick=()=>{$('modal').classList.remove('hidden')};$('closeModal').onclick=()=>$('modal').classList.add('hidden');
+$('saveChar').onclick=()=>{const name=$('cName').value.trim();if(!name)return alert('Please add a name.');const c={id:'c'+Date.now(),name,personality:$('cPersonality').value,backstory:$('cBackstory').value,style:$('cStyle').value};state.chars.push(c);save();$('modal').classList.add('hidden');['cName','cPersonality','cBackstory'].forEach(x=>$(x).value='');renderChars()};
+$('saveSettings').onclick=()=>{state.settings={name:$('userName').value,pace:$('pace').value,memory:$('memoryNote').value};save();alert('Saved on this iPad.')};
+$('userName').value=state.settings.name||'';$('pace').value=state.settings.pace||'Slow burn';$('memoryNote').value=state.settings.memory||'';
+$('exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='after-hours-backup.json';a.click();URL.revokeObjectURL(a.href)};
+$('deleteBtn').onclick=()=>{if(confirm('Permanently delete all After Hours characters and chats from this browser?')){localStorage.removeItem(KEY);location.reload()}};
+$('sendBtn').onclick=send;$('messageInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
+async function send(){const text=$('messageInput').value.trim();if(!text||!state.active)return;if(!engineReady){alert('Please open AI setup and download the local model first.');return}
+const c=state.chars.find(x=>x.id===state.active);const history=chatFor(c.id);history.push({role:'user',text});$('messageInput').value='';save();renderMessages();$('sendBtn').disabled=true;
+try{
+const system=`You are ${c.name}, an adult fictional romantic roleplay character. Personality: ${c.personality}. Backstory: ${c.backstory}. Style: ${c.style}. Relationship pace: ${state.settings.pace}. User name: ${state.settings.name||'not provided'}. User memory notes: ${state.settings.memory||'none'}. Stay in character, be emotionally engaging, remember details from this conversation, and never claim to be a real person. Keep replies natural and immersive. Respect consent and boundaries.`;
+const messages=[{role:'system',content:system},...history.slice(-16).map(m=>({role:m.role==='assistant'?'assistant':'user',content:m.text}))];
+const reply=await engine.chat.completions.create({messages,temperature:0.85,max_tokens:240});
+history.push({role:'assistant',text:reply.choices?.[0]?.message?.content?.trim()||'I’m here. Tell me more.'});save();renderMessages();
+}catch(err){history.push({role:'assistant',text:'I hit a local model error. Try a shorter message or reload the model from AI setup. ('+String(err.message||err).slice(0,100)+')'});save();renderMessages()}
+finally{$('sendBtn').disabled=false}}
+$('loadModelBtn').onclick=async()=>{if(loading)return;loading=true;$('loadModelBtn').disabled=true;$('loadProgress').textContent='Checking browser support...';
+try{
+if(!('gpu'in navigator))throw new Error('WebGPU is not available. Update to iPadOS 26 or later and use Safari, then try again.');
+$('loadProgress').textContent='Loading the local AI runtime...';
+const {CreateMLCEngine}=await import('https://esm.run/@mlc-ai/web-llm');
+const model='Qwen2.5-0.5B-Instruct-q4f16_1-MLC';
+engine=await CreateMLCEngine(model,{initProgressCallback:p=>{$('loadProgress').textContent=p.text||'Downloading model...'}});
+engineReady=true;$('engineStatus').textContent='Local AI ready';$('loadProgress').textContent='Ready. Your messages are processed on this iPad.';$('loadModelBtn').textContent='Local AI is ready';
+}catch(err){$('loadProgress').textContent='Could not start local AI: '+(err.message||err)+'. This iPad/browser may not support this model configuration.'}
+finally{loading=false;$('loadModelBtn').disabled=false}};
+renderChars();renderChats();
+if('serviceWorker'in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script>
+</body></html>
